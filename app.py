@@ -8,10 +8,10 @@ from sentiment import classify_tweet
 
 app = Flask(__name__)
 
-# 🔐 Secret Key
+# 🔥 SECRET KEY
 app.secret_key = "supersecretkey"
 
-# 📁 Upload folder (Render safe)
+# 🔥 IMPORTANT: Render এর জন্য /tmp ব্যবহার করো
 UPLOAD_FOLDER = "/tmp"
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -30,11 +30,6 @@ def home():
 # ---------------- MODEL 1 ----------------
 @app.route('/model1', methods=['GET', 'POST'])
 def model1():
-
-    # ✅ FIX: clear old session on page load
-    if request.method == 'GET':
-        session.pop('result1', None)
-        session.pop('graph1', None)
 
     prediction = None
 
@@ -57,6 +52,7 @@ def model1():
                 file = request.files.get('file')
 
                 if file and file.filename != "":
+                    # 🔥 UNIQUE filename
                     filename = str(uuid.uuid4()) + "_" + file.filename
                     path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
                     file.save(path)
@@ -65,40 +61,30 @@ def model1():
 
             result, graph = run_mlp(path)
 
-            # store fresh result
+            # 🔥 store in session (fix back error)
             session['result1'] = result
             session['graph1'] = graph
 
             return redirect(url_for('model1'))
 
-    return render_template(
-        'model1.html',
-        prediction=prediction,
-        result=session.get('result1'),
-        graph=session.get('graph1')
-    )
+    return render_template('model1.html',
+                           prediction=prediction,
+                           result=session.get('result1'),
+                           graph=session.get('graph1'))
 
 
 # ---------------- MODEL 2 ----------------
 @app.route('/model2', methods=['GET', 'POST'])
 def model2():
 
-    # initialize counters
     if 'pos' not in session:
         session['pos'] = 0
         session['neg'] = 0
         session['neu'] = 0
 
-    # ✅ FIX: clear old results on refresh
-    if request.method == 'GET':
-        session.pop('result2', None)
-        session.pop('graph2', None)
-        session.pop('sentiment_result', None)
-        session.pop('score', None)
-
     if request.method == 'POST':
 
-        # 🔄 RESET
+        # 🔄 RESET FIRST
         if 'reset' in request.form:
             session['pos'] = 0
             session['neg'] = 0
@@ -123,9 +109,6 @@ def model2():
         # -------- TWEET --------
         tweet = request.form.get("tweet")
 
-        sentiment_result = None
-        score = None
-
         if tweet:
             sentiment_result = classify_tweet(tweet)
 
@@ -141,8 +124,11 @@ def model2():
                 session['neg'],
                 session['neu']
             )
+        else:
+            sentiment_result = None
+            score = None
 
-        # store fresh session
+        # 🔥 store session
         session['result2'] = result
         session['graph2'] = graph
         session['sentiment_result'] = sentiment_result
@@ -150,25 +136,16 @@ def model2():
 
         return redirect(url_for('model2'))
 
-    return render_template(
-        'model2.html',
-        result=session.get('result2'),
-        graph=session.get('graph2'),
-        sentiment_result=session.get('sentiment_result'),
-        score=session.get('score'),
-        pos=session['pos'],
-        neg=session['neg'],
-        neu=session['neu']
-    )
-
-
-# ---------------- OPTIONAL CLEAR ROUTE ----------------
-@app.route('/clear')
-def clear():
-    session.clear()
-    return "Session cleared successfully"
+    return render_template('model2.html',
+                           result=session.get('result2'),
+                           graph=session.get('graph2'),
+                           sentiment_result=session.get('sentiment_result'),
+                           score=session.get('score'),
+                           pos=session['pos'],
+                           neg=session['neg'],
+                           neu=session['neu'])
 
 
 # ---------------- RUN ----------------
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(debug=True) ata app er code
