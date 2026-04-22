@@ -1,0 +1,83 @@
+/* Background Image */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+
+    background: url("bg.jfif") no-repeat center center/cover;
+    height: 100vh;
+}
+
+/* Dark overlay */
+.overlay {
+    background: rgba(0, 0, 0, 0.6);
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Center content */
+.home-container {
+    text-align: center;
+    color: white;
+}
+
+/* Heading */
+.home-container h1 {
+    font-size: 60px;
+    margin-bottom: 10px;
+}
+
+/* Subtitle */
+.home-container p {
+    font-size: 22px;
+    margin-bottom: 40px;
+}
+
+/* Buttons container */
+.buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+/* Buttons */
+.btn {
+    padding: 15px 30px;
+    font-size: 18px;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    background: #ff7b00;
+    color: white;
+    transition: 0.3s;
+}
+
+/* Secondary button */
+.btn-secondary {
+    background: #00c853;
+}
+
+/* Hover effect */
+.btn:hover {
+    transform: scale(1.1);
+    opacity: 0.9;
+}
+
+/* Top corner images */
+.top-left {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    width: 200px;
+    z-index: 10;
+}
+
+.top-right {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 300px;
+    z-index: 10;
+}

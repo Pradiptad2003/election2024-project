@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+    <!-- Left Top Image -->
+<img src="{{ url_for('static', filename='images/Election_Commission_of_India_Logo.svg.webp') }}" class="top-left">
+
+<!-- Right Top Image -->
+<img src="{{ url_for('static', filename='images/Elections-and-Indian-Democracy-scaled (1).avif') }}" class="top-right">
+<head>
+    <title>Election Prediction System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="overlay">
+
+    <div class="home-container">
+
+        <h1>Electoral Prediction System</h1>
+        <p>Using Machine Learning & Sentiment Analysis</p>
+
+        <div class="buttons">
+            <a href="/model1">
+                <button class="btn">MLP-Based Election Prediction</button>
+            </a>
+
+            <a href="/model2">
+                <button class="btn btn-secondary">Twitter Sentiment Analysis for Election Prediction</button>
+            </a>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

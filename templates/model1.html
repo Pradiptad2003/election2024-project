@@ -1,0 +1,37 @@
+
+<a href="{{ url_for('home') }}">
+    <button type="button" style="padding:8px 15px; background:#4CAF50; color:white; border:none; border-radius:5px;">
+        🏠 Back to Home
+    </button>
+</a>
+
+
+<h1>MLP Regression for Election Prediction</h1>
+
+<!-- 🔵 PREDICTION -->
+<h2>⚡ Seat Share Prediction</h2>
+
+<form method="POST">
+    <input type="number" step="0.1" name="vote_input" placeholder="Enter Vote %">
+    <button type="submit" name="predict_btn">Predict</button>
+</form>
+
+{% if prediction %}
+    <h3>Predicted Seat Share: {{ prediction }}</h3>
+{% endif %}
+
+<hr>
+
+<!-- 🟢 DATASET -->
+<h2>📊 Dataset Analysis</h2>
+
+<form method="POST" enctype="multipart/form-data">
+    <input type="file" name="file">
+    <button type="submit" name="dataset_btn">Upload Dataset</button>
+    <button type="submit" name="sample">Use Sample Dataset</button>
+</form>
+
+{% if graph %}
+    <h3>{{ result }}</h3>
+    <img src="{{ url_for('static', filename=graph.split('/')[-1]) }}" width="500">
+{% endif %}

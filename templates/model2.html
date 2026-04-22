@@ -1,0 +1,104 @@
+
+
+
+<a href="{{ url_for('home') }}">
+    <button type="button" style="padding:8px 15px; background:#4CAF50; color:white; border:none; border-radius:5px;">
+        🏠 Back to Home
+    </button>
+</a>
+
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sentiment Analysis Dashboard</title>
+</head>
+<body>
+
+<h1>🗳️ Election Sentiment & Prediction Dashboard</h1>
+
+<hr>
+
+<!-- ================= DATASET UPLOAD ================= -->
+<form method="POST" enctype="multipart/form-data">
+
+    <h2>📂 Dataset Analysis</h2>
+
+    <input type="file" name="file">
+
+    <button type="submit">Upload Dataset</button>
+    <button type="submit" name="sample">Use Sample Dataset</button>
+
+</form>
+
+<br>
+
+<!-- ================= AUTO GRAPH ================= -->
+{% if graph %}
+    <h3>📊 Model Generated Graph</h3>
+    <img src="{{ url_for('static', filename=graph.split('/')[-1]) }}" width="500">
+{% endif %}
+
+<h2>{{ result }}</h2>
+
+<hr>
+
+<!-- ================= MANUAL VISUALIZATION ================= -->
+<h2>📊 Visual Insights</h2>
+
+
+<h3>💬 Tweet Volume Across Political Parties </h3>
+<img src="{{ url_for('static', filename='images/Graph .jpg') }}" width="700">
+
+
+<h3>🌍📍 Geographical Distribution of Tweets (Heatmap)</h3>
+<img src="{{ url_for('static', filename='images/Twitter Project Heat map.jpg') }}" style="width:90%; max-width:600px; height:auto;">
+
+<hr>
+
+<!-- ================= TWEET INPUT ================= -->
+<h2>🔍 Tweet Sentiment Analysis</h2>
+
+<form method="POST">
+    <input type="text" name="tweet" placeholder="Enter tweet" style="width:300px;">
+    <button type="submit">Analyze</button>
+</form>
+
+<br>
+
+<!-- ================= RESULT ================= -->
+{% if sentiment_result %}
+    <h3>Sentiment: {{ sentiment_result }}</h3>
+{% endif %}
+
+<!-- ================= COUNTS ================= -->
+<h3>🟢 Positive: {{ pos }}</h3>
+<h3>🔴 Negative: {{ neg }}</h3>
+<h3>⚪ Neutral: {{ neu }}</h3>
+
+<!-- ================= LIVE SCORE ================= -->
+{% if score %}
+    <h2>📈 Live Score: {{ score }}</h2>
+
+    {% if score > 0.2 %}
+        <h3 style="color:green;">Overall: Positive Trend</h3>
+    {% elif score < 0 %}
+        <h3 style="color:red;">Overall: Negative Trend</h3>
+    {% else %}
+        <h3 style="color:orange;">Overall: Neutral Trend</h3>
+    {% endif %}
+{% endif %}
+
+<hr>
+
+<!-- ================= RESET ================= -->
+<form method="POST">
+    <button type="submit" name="reset">🔄 Reset Dashboard</button>
+</form>
+
+</body>
+</html>

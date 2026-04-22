@@ -1,0 +1,5 @@
+<h2>{{ result }}</h2>
+
+{% if graph %}
+    <img src="{{ url_for('static', filename=graph.split('/')[-1]) }}">
+{% endif %}
