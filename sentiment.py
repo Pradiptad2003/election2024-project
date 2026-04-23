@@ -1,8 +1,14 @@
 from nltk.sentiment import SentimentIntensityAnalyzer
 import nltk
-nltk.download('vader_lexicon')
+
+# run only once
+try:
+    nltk.data.find('sentiment/vader_lexicon')
+except LookupError:
+    nltk.download('vader_lexicon')
 
 sia = SentimentIntensityAnalyzer()
+
 
 def classify_tweet(text):
     score = sia.polarity_scores(text)['compound']
