@@ -1,17 +1,3 @@
-
-
-
-<a href="{{ url_for('home') }}">
-    <button type="button" style="padding:8px 15px; background:#4CAF50; color:white; border:none; border-radius:5px;">
-        🏠 Back to Home
-    </button>
-</a>
-
-
-
-
-
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -37,6 +23,11 @@
 
 <br>
 
+<!-- 🔥 ERROR MESSAGE FIX -->
+{% if error %}
+    <h3 style="color:red;">{{ error }}</h3>
+{% endif %}
+
 <!-- ================= AUTO GRAPH ================= -->
 {% if graph %}
     <h3>📊 Model Generated Graph</h3>
@@ -47,20 +38,16 @@
 
 <hr>
 
-<!-- ================= MANUAL VISUALIZATION ================= -->
 <h2>📊 Visual Insights</h2>
-
 
 <h3>💬 Tweet Volume Across Political Parties </h3>
 <img src="{{ url_for('static', filename='images/Graph .jpg') }}" width="700">
-
 
 <h3>🌍📍 Geographical Distribution of Tweets (Heatmap)</h3>
 <img src="{{ url_for('static', filename='images/Twitter Project Heat map.jpg') }}" style="width:90%; max-width:600px; height:auto;">
 
 <hr>
 
-<!-- ================= TWEET INPUT ================= -->
 <h2>🔍 Tweet Sentiment Analysis</h2>
 
 <form method="POST">
@@ -70,17 +57,14 @@
 
 <br>
 
-<!-- ================= RESULT ================= -->
 {% if sentiment_result %}
     <h3>Sentiment: {{ sentiment_result }}</h3>
 {% endif %}
 
-<!-- ================= COUNTS ================= -->
 <h3>🟢 Positive: {{ pos }}</h3>
 <h3>🔴 Negative: {{ neg }}</h3>
 <h3>⚪ Neutral: {{ neu }}</h3>
 
-<!-- ================= LIVE SCORE ================= -->
 {% if score %}
     <h2>📈 Live Score: {{ score }}</h2>
 
@@ -95,7 +79,6 @@
 
 <hr>
 
-<!-- ================= RESET ================= -->
 <form method="POST">
     <button type="submit" name="reset">🔄 Reset Dashboard</button>
 </form>
