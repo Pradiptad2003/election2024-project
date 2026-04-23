@@ -8,10 +8,10 @@ from sentiment import classify_tweet
 
 app = Flask(__name__)
 
-# 🔥 SECRET KEY
+# 🔥 SECRET KEY (required for session)
 app.secret_key = "supersecretkey"
 
-# 🔥 IMPORTANT: Render এর জন্য /tmp ব্যবহার করো
+# 🔥 Render safe upload folder
 UPLOAD_FOLDER = "/tmp"
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -21,9 +21,10 @@ for folder in ["data", "static"]:
         os.makedirs(folder)
 
 
-# ---------------- HOME ----------------
+# ---------------- HOME (FULL RESET) ----------------
 @app.route('/')
 def home():
+    session.clear()   # 🔥 ensures no previous prediction stays
     return render_template('home.html')
 
 
@@ -35,24 +36,25 @@ def model1():
 
     if request.method == 'POST':
 
-        # 🔵 PREDICT
+        # 🔵 SINGLE PREDICTION
         if 'predict_btn' in request.form:
             vote = request.form.get("vote_input")
 
             if vote:
                 prediction = predict_seat(float(vote))
 
-        # 🟢 DATASET
+                # 🔥 overwrite old prediction
+                session['prediction1'] = prediction
+
+        # 🟢 DATASET UPLOAD / SAMPLE
         elif 'dataset_btn' in request.form or 'sample' in request.form:
 
             if 'sample' in request.form:
                 path = "data/sample_model1.csv"
-
             else:
                 file = request.files.get('file')
 
                 if file and file.filename != "":
-                    # 🔥 UNIQUE filename
                     filename = str(uuid.uuid4()) + "_" + file.filename
                     path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
                     file.save(path)
@@ -61,22 +63,29 @@ def model1():
 
             result, graph = run_mlp(path)
 
-            # 🔥 store in session (fix back error)
+            # 🔥 clear old model1 session data
+            session.pop('result1', None)
+            session.pop('graph1', None)
+
+            # store fresh results
             session['result1'] = result
             session['graph1'] = graph
 
             return redirect(url_for('model1'))
 
-    return render_template('model1.html',
-                           prediction=prediction,
-                           result=session.get('result1'),
-                           graph=session.get('graph1'))
+    return render_template(
+        'model1.html',
+        prediction=session.get('prediction1'),
+        result=session.get('result1'),
+        graph=session.get('graph1')
+    )
 
 
 # ---------------- MODEL 2 ----------------
 @app.route('/model2', methods=['GET', 'POST'])
 def model2():
 
+    # initialize counters safely
     if 'pos' not in session:
         session['pos'] = 0
         session['neg'] = 0
@@ -84,11 +93,9 @@ def model2():
 
     if request.method == 'POST':
 
-        # 🔄 RESET FIRST
+        # 🔄 RESET BUTTON
         if 'reset' in request.form:
-            session['pos'] = 0
-            session['neg'] = 0
-            session['neu'] = 0
+            session.clear()
             return redirect(url_for('model2'))
 
         # -------- DATASET --------
@@ -106,8 +113,17 @@ def model2():
 
         result, graph = run_sentiment(path)
 
-        # -------- TWEET --------
+        # 🔥 clear old model2 data before saving new
+        session.pop('result2', None)
+        session.pop('graph2', None)
+        session.pop('sentiment_result', None)
+        session.pop('score', None)
+
+        # -------- TWEET ANALYSIS --------
         tweet = request.form.get("tweet")
+
+        sentiment_result = None
+        score = None
 
         if tweet:
             sentiment_result = classify_tweet(tweet)
@@ -124,11 +140,8 @@ def model2():
                 session['neg'],
                 session['neu']
             )
-        else:
-            sentiment_result = None
-            score = None
 
-        # 🔥 store session
+        # store fresh results
         session['result2'] = result
         session['graph2'] = graph
         session['sentiment_result'] = sentiment_result
@@ -136,16 +149,19 @@ def model2():
 
         return redirect(url_for('model2'))
 
-    return render_template('model2.html',
-                           result=session.get('result2'),
-                           graph=session.get('graph2'),
-                           sentiment_result=session.get('sentiment_result'),
-                           score=session.get('score'),
-                           pos=session['pos'],
-                           neg=session['neg'],
-                           neu=session['neu'])
+    return render_template(
+        'model2.html',
+        result=session.get('result2'),
+        graph=session.get('graph2'),
+        sentiment_result=session.get('sentiment_result'),
+        score=session.get('score'),
+        pos=session.get('pos', 0),
+        neg=session.get('neg', 0),
+        neu=session.get('neu', 0)
+    )
 
 
-# ---------------- RUN ----------------
+# ---------------- RUN (RENDER READY) ----------------
 if __name__ == '__main__':
-    app.run(debug=True) ata app er code
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
