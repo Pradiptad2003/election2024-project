@@ -7,6 +7,7 @@ from scipy.stats import pearsonr
 import numpy as np
 import uuid
 
+
 def calculate_sentiment_score(pos, neg, neu):
     total = pos + neg + neu
     if total == 0:
@@ -18,8 +19,11 @@ def run_sentiment(path):
 
     df = pd.read_csv(path)
 
-    if 'Sentiment Score' not in df.columns or 'Vote %' not in df.columns:
-        raise ValueError("CSV missing required columns")
+    # -------- SAFE CHECK --------
+    required_cols = ['Sentiment Score', 'Vote %']
+
+    if not all(col in df.columns for col in required_cols):
+        raise ValueError("CSV missing required columns: Sentiment Score, Vote %")
 
     S = df['Sentiment Score']
     V = df['Vote %']
