@@ -14,16 +14,17 @@
 
     <h2>📂 Dataset Analysis</h2>
 
-    <input type="file" name="file">
+    <!-- 🔥 FIX: required added -->
+    <input type="file" name="file" required>
 
-    <button type="submit">Upload Dataset</button>
+    <button type="submit" name="upload">Upload Dataset</button>
     <button type="submit" name="sample">Use Sample Dataset</button>
 
 </form>
 
 <br>
 
-<!-- 🔥 ERROR MESSAGE FIX -->
+<!-- ================= ERROR MESSAGE ================= -->
 {% if error %}
     <h3 style="color:red;">{{ error }}</h3>
 {% endif %}
@@ -38,6 +39,7 @@
 
 <hr>
 
+<!-- ================= VISUAL INSIGHTS ================= -->
 <h2>📊 Visual Insights</h2>
 
 <h3>💬 Tweet Volume Across Political Parties </h3>
@@ -48,6 +50,7 @@
 
 <hr>
 
+<!-- ================= TWEET ANALYSIS ================= -->
 <h2>🔍 Tweet Sentiment Analysis</h2>
 
 <form method="POST">
@@ -57,14 +60,17 @@
 
 <br>
 
+<!-- ================= RESULT ================= -->
 {% if sentiment_result %}
     <h3>Sentiment: {{ sentiment_result }}</h3>
 {% endif %}
 
+<!-- ================= COUNTS ================= -->
 <h3>🟢 Positive: {{ pos }}</h3>
 <h3>🔴 Negative: {{ neg }}</h3>
 <h3>⚪ Neutral: {{ neu }}</h3>
 
+<!-- ================= LIVE SCORE ================= -->
 {% if score %}
     <h2>📈 Live Score: {{ score }}</h2>
 
@@ -79,10 +85,10 @@
 
 <hr>
 
+<!-- ================= RESET ================= -->
 <form method="POST">
     <button type="submit" name="reset">🔄 Reset Dashboard</button>
 </form>
 
 </body>
 </html>
-
