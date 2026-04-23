@@ -8,23 +8,20 @@ from sentiment import classify_tweet
 
 app = Flask(__name__)
 
-# 🔥 SECRET KEY (required for session)
 app.secret_key = "supersecretkey"
 
-# 🔥 Render safe upload folder
 UPLOAD_FOLDER = "/tmp"
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# Ensure folders exist
 for folder in ["data", "static"]:
     if not os.path.exists(folder):
         os.makedirs(folder)
 
 
-# ---------------- HOME (FULL RESET) ----------------
+# ---------------- HOME ----------------
 @app.route('/')
 def home():
-    session.clear()   # 🔥 ensures no previous prediction stays
+    session.clear()
     return render_template('home.html')
 
 
@@ -36,17 +33,13 @@ def model1():
 
     if request.method == 'POST':
 
-        # 🔵 SINGLE PREDICTION
         if 'predict_btn' in request.form:
             vote = request.form.get("vote_input")
 
             if vote:
                 prediction = predict_seat(float(vote))
-
-                # 🔥 overwrite old prediction
                 session['prediction1'] = prediction
 
-        # 🟢 DATASET UPLOAD / SAMPLE
         elif 'dataset_btn' in request.form or 'sample' in request.form:
 
             if 'sample' in request.form:
@@ -63,11 +56,9 @@ def model1():
 
             result, graph = run_mlp(path)
 
-            # 🔥 clear old model1 session data
             session.pop('result1', None)
             session.pop('graph1', None)
 
-            # store fresh results
             session['result1'] = result
             session['graph1'] = graph
 
@@ -81,45 +72,55 @@ def model1():
     )
 
 
-# ---------------- MODEL 2 ----------------
+# ---------------- MODEL 2 (FIXED) ----------------
 @app.route('/model2', methods=['GET', 'POST'])
 def model2():
 
-    # initialize counters safely
     if 'pos' not in session:
         session['pos'] = 0
         session['neg'] = 0
         session['neu'] = 0
 
+    error = None
+
     if request.method == 'POST':
 
-        # 🔄 RESET BUTTON
         if 'reset' in request.form:
             session.clear()
             return redirect(url_for('model2'))
 
-        # -------- DATASET --------
         file = request.files.get('file')
 
+        # -------- SAMPLE DATASET --------
         if 'sample' in request.form:
             path = "data/sample_model2.csv"
 
+        # -------- FILE UPLOAD --------
         elif file and file.filename != "":
             filename = str(uuid.uuid4()) + "_" + file.filename
             path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(path)
+
+        # -------- FIX: NO FILE CASE --------
         else:
-            path = "data/sample_model2.csv"
+            error = "⚠️ No file chosen!"
+            return render_template('model2.html',
+                                   error=error,
+                                   result=session.get('result2'),
+                                   graph=session.get('graph2'),
+                                   sentiment_result=session.get('sentiment_result'),
+                                   score=session.get('score'),
+                                   pos=session.get('pos', 0),
+                                   neg=session.get('neg', 0),
+                                   neu=session.get('neu', 0))
 
         result, graph = run_sentiment(path)
 
-        # 🔥 clear old model2 data before saving new
         session.pop('result2', None)
         session.pop('graph2', None)
         session.pop('sentiment_result', None)
         session.pop('score', None)
 
-        # -------- TWEET ANALYSIS --------
         tweet = request.form.get("tweet")
 
         sentiment_result = None
@@ -141,7 +142,6 @@ def model2():
                 session['neu']
             )
 
-        # store fresh results
         session['result2'] = result
         session['graph2'] = graph
         session['sentiment_result'] = sentiment_result
@@ -151,6 +151,7 @@ def model2():
 
     return render_template(
         'model2.html',
+        error=error,
         result=session.get('result2'),
         graph=session.get('graph2'),
         sentiment_result=session.get('sentiment_result'),
@@ -161,7 +162,7 @@ def model2():
     )
 
 
-# ---------------- RUN (RENDER READY) ----------------
+# ---------------- RUN ----------------
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port, debug=False)
