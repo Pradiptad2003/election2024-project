@@ -1,3 +1,9 @@
+<a href="{{ url_for('home') }}">
+    <button type="button" style="padding:8px 15px; background:#4CAF50; color:white; border:none; border-radius:5px;">
+        🏠 Back to Home
+    </button>
+</a>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -14,20 +20,17 @@
 
     <h2>📂 Dataset Analysis</h2>
 
-    <!-- 🔥 FIX: required added -->
-    <input type="file" name="file" required>
+    <input type="file" name="file">
 
-    <button type="submit" name="upload">Upload Dataset</button>
+    <!-- 🔥 FIX: name attribute MUST match Flask logic -->
+    <button type="submit" name="dataset_btn">Upload Dataset</button>
+
+    <!-- 🔥 FIX: explicit sample trigger -->
     <button type="submit" name="sample">Use Sample Dataset</button>
 
 </form>
 
 <br>
-
-<!-- ================= ERROR MESSAGE ================= -->
-{% if error %}
-    <h3 style="color:red;">{{ error }}</h3>
-{% endif %}
 
 <!-- ================= AUTO GRAPH ================= -->
 {% if graph %}
@@ -39,7 +42,7 @@
 
 <hr>
 
-<!-- ================= VISUAL INSIGHTS ================= -->
+<!-- ================= MANUAL VISUALIZATION ================= -->
 <h2>📊 Visual Insights</h2>
 
 <h3>💬 Tweet Volume Across Political Parties </h3>
@@ -50,7 +53,7 @@
 
 <hr>
 
-<!-- ================= TWEET ANALYSIS ================= -->
+<!-- ================= TWEET INPUT ================= -->
 <h2>🔍 Tweet Sentiment Analysis</h2>
 
 <form method="POST">
