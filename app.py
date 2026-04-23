@@ -10,10 +10,12 @@ app = Flask(__name__)
 
 app.secret_key = "supersecretkey"
 
-UPLOAD_FOLDER = "/tmp"
+UPLOAD_FOLDER = os.path.join(os.getcwd(), "uploads")
+STATIC_FOLDER = os.path.join(os.getcwd(), "static")
+
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-for folder in ["data", "static"]:
+for folder in ["data", "static", "uploads"]:
     if not os.path.exists(folder):
         os.makedirs(folder)
 
@@ -52,12 +54,12 @@ def model1():
                     path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
                     file.save(path)
                 else:
-                    return "⚠️ No file uploaded!"
+                    return render_template('model1.html', error="⚠️ No file uploaded!")
 
-            result, graph = run_mlp(path)
-
-            session.pop('result1', None)
-            session.pop('graph1', None)
+            try:
+                result, graph = run_mlp(path)
+            except Exception as e:
+                return f"Model1 Error: {str(e)}"
 
             session['result1'] = result
             session['graph1'] = graph
@@ -72,7 +74,7 @@ def model1():
     )
 
 
-# ---------------- MODEL 2 (FIXED) ----------------
+# ---------------- MODEL 2 ----------------
 @app.route('/model2', methods=['GET', 'POST'])
 def model2():
 
@@ -101,25 +103,28 @@ def model2():
             path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(path)
 
-        # -------- FIX: NO FILE CASE --------
+        # -------- NO FILE SELECTED --------
         else:
-            error = "⚠️ No file chosen!"
-            return render_template('model2.html',
-                                   error=error,
-                                   result=session.get('result2'),
-                                   graph=session.get('graph2'),
-                                   sentiment_result=session.get('sentiment_result'),
-                                   score=session.get('score'),
-                                   pos=session.get('pos', 0),
-                                   neg=session.get('neg', 0),
-                                   neu=session.get('neu', 0))
+            return render_template(
+                'model2.html',
+                error="⚠️ No file chosen!",
+                result=session.get('result2'),
+                graph=session.get('graph2'),
+                sentiment_result=session.get('sentiment_result'),
+                score=session.get('score'),
+                pos=session.get('pos', 0),
+                neg=session.get('neg', 0),
+                neu=session.get('neu', 0)
+            )
 
-        result, graph = run_sentiment(path)
+        # -------- SENTIMENT MODEL SAFE RUN --------
+        try:
+            result, graph = run_sentiment(path)
+        except Exception as e:
+            return f"Model2 Error: {str(e)}"
 
-        session.pop('result2', None)
-        session.pop('graph2', None)
-        session.pop('sentiment_result', None)
-        session.pop('score', None)
+        session['result2'] = result
+        session['graph2'] = graph
 
         tweet = request.form.get("tweet")
 
@@ -142,8 +147,6 @@ def model2():
                 session['neu']
             )
 
-        session['result2'] = result
-        session['graph2'] = graph
         session['sentiment_result'] = sentiment_result
         session['score'] = score
 
