@@ -1,3 +1,4 @@
+```python
 import os
 import uuid
 import warnings
@@ -113,6 +114,25 @@ def model2():
             session.clear()
             return redirect(url_for('model2'))
 
+        # -------- TWEET (🔥 FIXED) --------
+        tweet = request.form.get("tweet")
+
+        if tweet:
+            sentiment = classify_tweet(tweet)
+            session['sentiment_result'] = sentiment
+
+            session['pos'] = session.get('pos', 0) + (1 if sentiment == "Positive" else 0)
+            session['neg'] = session.get('neg', 0) + (1 if sentiment == "Negative" else 0)
+            session['neu'] = session.get('neu', 0) + (1 if sentiment == "Neutral" else 0)
+
+            session['score'] = calculate_sentiment_score(
+                session['pos'],
+                session['neg'],
+                session['neu']
+            )
+
+            return redirect(url_for('model2'))
+
         # -------- SAMPLE --------
         if 'sample' in request.form:
             path = "data/sample_model2.csv"
@@ -151,24 +171,6 @@ def model2():
                 error=f"❌ Model Error: {str(e)}"
             )
 
-        # -------- TWEET --------
-        tweet = request.form.get("tweet")
-
-        if tweet:
-            sentiment = classify_tweet(tweet)
-            session['sentiment_result'] = sentiment
-
-            # safe counter update
-            session['pos'] = session.get('pos', 0) + (1 if sentiment == "Positive" else 0)
-            session['neg'] = session.get('neg', 0) + (1 if sentiment == "Negative" else 0)
-            session['neu'] = session.get('neu', 0) + (1 if sentiment == "Neutral" else 0)
-
-            session['score'] = calculate_sentiment_score(
-                session['pos'],
-                session['neg'],
-                session['neu']
-            )
-
         return redirect(url_for('model2'))
 
     return render_template(
@@ -187,3 +189,4 @@ def model2():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=False)
+```
