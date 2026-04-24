@@ -5,7 +5,7 @@ from flask import Flask, render_template, request, session, redirect, url_for
 
 from model1 import run_mlp, predict_seat
 from model2 import run_sentiment, calculate_sentiment_score
-from sentiment import classify_tweet```python
+from sentiment import classify_tweet
 import os
 import uuid
 import warnings
@@ -189,7 +189,6 @@ def model2():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
-```
 
 
 warnings.filterwarnings("ignore")
